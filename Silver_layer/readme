@@ -1,0 +1,62 @@
+# 💿 Silver Layer — Cleaned & Standardized Data (Delta Lake)
+
+**Project:** Financial Transactions Lakehouse — Silver layer  
+**Script:** `silver_delta_ingestion_incremental.py`  
+**Purpose:** Transforms Bronze Delta tables into Silver layer with **data cleaning, enrichment, and incremental ingestion**.  
+
+---
+
+## ✅ What this does
+
+- 📥 Reads **Bronze Delta tables** (`customers`, `accounts`, `merchants`, `transactions`) from S3/MinIO  
+- 🔄 Performs **incremental ingestion** using timestamp columns  
+- 🧹 Cleans, standardizes, and enriches data:
+  - Fixes schema, normalizes formats, validates fields  
+  - Derives **new features** (age, txn_date, debit flag, etc.)  
+- ⏱️ Supports **watermarking** for late-arriving data (`transactions`)  
+- 💾 Writes cleaned datasets to **Silver Delta tables** with checkpointing  
+- 📊 Emits logs for monitoring (Grafana/ELK friendly)  
+
+---
+
+## 🔧 Tech Stack
+
+- ⚡ **Apache Spark (PySpark)** — tested with Spark **4.0.1**  
+- 🟢 **Delta Lake** (`delta-spark`) — for ACID reliability  
+- 📦 **MinIO (S3 API)** — local object store for raw/bronze/silver  
+- 🛠️ **Hadoop S3A connector** + **AWS SDK** (for S3 integration)  
+- 🐍 **Python 3.8+** (tested on 3.12 — works fine with compatible packages)  
+- 📌 *(Optional)* Airflow for orchestration, Streamlit/Plotly for dashboards  
+
+---
+
+## 📁 Tables Managed
+
+- 👥 **customers** → Cleaned, standardized, with `age` derived  
+- 🏬 **merchants** → Normalized categories, country codes, cleaned names  
+- 💳 **accounts** → Enforces valid balances & opened_date, maps status  
+- 🧾 **transactions** → Watermarked, partitioned by `txn_year`, `txn_month`  
+
+---
+
+## ▶ How it Works
+
+1. **Read Bronze Delta tables** from `s3a://bucket/bronze/...`  
+2. **Check last ingested timestamp** (if available in Silver)  
+   - Load only **new rows** since last ingestion  
+3. Apply **transformations**:
+   - `customers`: validate DOB, email, clean names, calculate age  
+   - `merchants`: normalize city, country, and category  
+   - `accounts`: validate balance, enforce opened_date, map statuses  
+   - `transactions`: add date/year/month partitions, watermarking for late data  
+4. **Write to Silver Delta tables** at `s3a://bucket/silver/...` with checkpointing  
+5. **Logs progress** and outputs sample data  
+
+---
+
+## 📂 Data Flow
+
+```mermaid
+flowchart TD
+    A[Bronze Layer - Delta Tables] -->|Transform & Incremental Load| B[Silver Layer - Cleaned Delta Tables]
+    B --> C[Gold Layer]
