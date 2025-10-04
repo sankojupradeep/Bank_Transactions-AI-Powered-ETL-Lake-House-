@@ -10,6 +10,8 @@ The architecture follows a **multi-layered lakehouse approach**:
 - **Silver Layer** → Cleans, standardizes, and enriches data  
 - **Gold Layer** → Builds fact & dimension tables for BI and reporting  
 
+<img width="3018" height="940" alt="Blank diagram (1)" src="https://github.com/user-attachments/assets/2675baef-34f2-43f1-bccc-a222d09e21e5" />
+
 ---
 
 ## ⚙️ Tools & Technologies  
