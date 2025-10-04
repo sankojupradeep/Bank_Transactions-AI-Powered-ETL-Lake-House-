@@ -1,0 +1,15 @@
+# 🏦 Banking ETL Pipeline with Airflow — Raw → Bronze → Silver → Gold
+
+This project orchestrates a **Financial Transactions Lakehouse Pipeline** using **Apache Airflow**.  
+The pipeline ingests raw banking data, processes it into Delta Lake tables, and builds **Silver (cleaned)** and **Gold (analytics-ready)** layers.
+
+---
+
+## 📌 Workflow Overview
+
+```mermaid
+flowchart LR
+    A[📂 Raw Layer <br> Append CSVs] --> B[🥉 Bronze Layer <br> Incremental Ingestion]
+    B --> C[🥈 Silver Layer <br> Transformations & Cleansing]
+    C --> D[🥇 Gold Layer <br> Dimensions]
+    D --> E[📊 Gold Layer <br> Facts]
