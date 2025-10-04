@@ -25,7 +25,7 @@ The architecture follows a **multi-layered lakehouse approach**:
 
 
 ## 📂 Project Structure  
-`'`bash
+```bash
 Financial_Transaction Project/
 │
 ├── data/                  # Raw data generator (raw_data.py)
@@ -35,5 +35,4 @@ Financial_Transaction Project/
 ├── LLM/                   # Streamlit dashboard & visualizations
 ├── airflow_dags/          # Airflow DAG (banking_pipeline_orchestration.py)
 └── README.md              # Documentation
-
 
