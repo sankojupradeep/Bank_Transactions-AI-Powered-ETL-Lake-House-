@@ -1,0 +1,57 @@
+# 🏦 Bronze Layer — Incremental Ingestion (Delta Lake)
+
+**Project:** Financial Transactions Lakehouse — Bronze layer  
+**Script:** `bronze_delta_ingestion_incremental.py`  
+**Purpose:** Incrementally ingest raw CSV files from S3/MinIO into Delta tables (Bronze layer) with checkpoints and logging.
+
+---
+
+## ✅ What this does
+
+- 📥 Reads raw CSVs from **S3/MinIO** (`transactions`, `customers`, `accounts`, `merchants`)  
+- 🔄 Performs **incremental ingestion** (only new rows since the last load) using timestamp columns  
+- 💾 Writes data as **Delta Lake** tables with checkpointing  
+- 📊 Emits logs for monitoring (Grafana/Log collector friendly)  
+- 🏗️ Forms the **first step of the ETL lakehouse**: `Raw → Bronze → Silver → Gold`  
+
+---
+
+## 🔧 Tech Stack
+
+- ⚡ **Apache Spark (PySpark)** — tested with Spark **4.0.1**  
+- 🟢 **Delta Lake** (`delta-spark` / delta Python package)  
+- 📦 **MinIO (S3 API)** — local object store for raw/bronze data  
+- 🛠️ **Hadoop S3A connector** (`hadoop-aws`) + **AWS SDK** (`aws-java-sdk-bundle`) JARs  
+- 🐍 **Python 3.8+** (tested on 3.12 — works if dependencies are compatible)  
+- 📌 *(Optional)* Airflow for orchestration, Streamlit/Plotly for dashboards  
+
+---
+
+## 📁 Tables Managed
+
+- 🧾 **transactions** → ingested incrementally via `timestamp`  
+- 👥 **customers** → ingested incrementally via `created_at`  
+- 💳 **accounts** → ingested incrementally via `opened_date`  
+- 🏬 **merchants** → append-only (no timestamp column)  
+
+---
+
+## ▶ How it Works
+
+1. The script reads raw CSVs from the `raw/` folder in **S3 (MinIO)**.  
+2. For tables with a timestamp column:
+   - Compares with the **max timestamp in Delta table**  
+   - Loads only rows **newer than the last ingested row**  
+3. Writes to **Bronze Delta tables** under `s3a://bucket/bronze/...`  
+4. Maintains **checkpoints** for resilience and recovery.  
+5. Logs ingestion stats for monitoring and auditing.  
+
+---
+
+## 📂 Data Flow
+
+```mermaid
+flowchart TD
+    A[Raw CSVs on MinIO] -->|Read with Spark| B[Bronze Layer - Delta Tables]
+    B -->|Checkpointing| C[Delta Checkpoints]
+    B -->|Next Stage| D[Silver Layer]
