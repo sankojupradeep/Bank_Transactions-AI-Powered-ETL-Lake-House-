@@ -1,0 +1,12 @@
+FROM apache/airflow:2.9.3
+
+# Switch to root temporarily to install system packages
+USER root
+RUN apt-get update && apt-get install -y python3-pip
+
+# Switch back to airflow user to install Python packages
+USER airflow
+
+# Copy requirements and install them
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt

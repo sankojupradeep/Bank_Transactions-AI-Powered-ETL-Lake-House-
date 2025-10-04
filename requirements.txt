@@ -1,0 +1,4 @@
+faker
+pyspark
+delta-spark
+boto3
