@@ -1,28 +1,35 @@
-# 🥇 Gold Layer — Enhanced Dimension Tables (Delta Lake on S3/MinIO)
+# 🥇 Gold Layer — Enhanced Delta Tables (S3/MinIO)
 
-This project handles the **Gold Layer for dimension tables** in a financial transactions lakehouse.  
-It reads **Silver Delta tables** from S3/MinIO, applies **enhancements**, and writes **managed Delta tables** for analytics.
+This project handles the **Gold Layer** of a financial transactions lakehouse.  
+It reads **Silver Delta tables** from S3/MinIO, applies **enhancements**, and writes **managed Delta tables** for analytics and BI queries.
 
 ---
 
 ## 📌 Features
 
+### Gold Dimensions
 - **SCD Type 1**: Overwrite updates for dimension changes (e.g., name/balance updates).  
 - **Aggregations**: Customer age groups, merchant counts per country, account balance stats.  
 - **Window Functions**: Rank customers by age, dense rank merchants by category, running balance per account.  
 - **Star Schema Ready**: Dimensions prepared for joins in fact tables.  
-- **Fully on S3**: Delta tables stored under `s3a://bucket/gold/dim_tables/{table}_enhanced`.  
-- **No Snowflake dependency**: Everything managed in Delta Lake on S3/MinIO.
+
+### Gold Facts
+- **Denormalized Joins**: Transactions joined with Silver dimensions (customers, merchants, accounts).  
+- **Advanced Aggregations**: Time-window grouping, percentiles, correlation, running totals, trends.  
+- **Window Functions**: Rank transactions by amount, running spend per customer.  
+- **BI Ready**: Prepares denormalized facts for dashboards and analytics.  
+- **Fully on S3**: Delta tables stored under `s3a://bucket/gold/`.
 
 ---
 
 ## 📁 Tables Created
 
-| Table Name | Description |
-|------------|-------------|
-| `gold_layer.customers_enhanced` | Customers with age groups, ranking by gender, SCD1 updates |
-| `gold_layer.merchants_enhanced` | Merchants with top-ranked merchants per category & country |
-| `gold_layer.accounts_enhanced`  | Accounts with balance buckets, running balances, aggregated metrics |
+| Table Name | Layer | Description |
+|------------|-------|-------------|
+| `gold_layer.customers_enhanced` | Dimension | Customers with age groups, ranking by gender, SCD1 updates |
+| `gold_layer.merchants_enhanced` | Dimension | Top-ranked merchants per category & country |
+| `gold_layer.accounts_enhanced` | Dimension | Accounts with balance buckets, running balances, aggregates |
+| `gold_layer.transactions_enhanced` | Fact | Transactions joined with dimensions, advanced aggregations & windows |
 
 ---
 
@@ -30,7 +37,8 @@ It reads **Silver Delta tables** from S3/MinIO, applies **enhancements**, and wr
 
 ```mermaid
 flowchart LR
-    S[🥈 Silver Layer] --> G[🥇 Gold Layer]
+    R[📂 Silver Layer] --> G[🥇 Gold Layer]
     G --> C[Customers Enhanced]
     G --> M[Merchants Enhanced]
     G --> A[Accounts Enhanced]
+    G --> F[Transactions Enhanced]
